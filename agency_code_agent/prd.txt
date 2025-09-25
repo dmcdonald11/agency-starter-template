@@ -1,0 +1,183 @@
+# Agency Code Agent
+
+---
+
+- **Purpose:** A specialized coding agent that provides advanced development assistance similar to Claude Code CLI, featuring comprehensive code editing, file management, testing, and development workflow automation for software engineers and developers.
+- **Communication Flows:**
+  - **Between Agents:**
+    - This is a single-agent architecture designed to work independently
+    - The Agency Code Agent serves as the primary interface for all coding tasks
+  - **Agent to User Communication:** Direct terminal-style communication with structured responses, code editing capabilities, and real-time feedback on development tasks.
+
+---
+
+## Agency Code Agent
+
+### **Role within the Agency**
+
+A comprehensive coding assistant that handles all aspects of software development including file operations, code editing, terminal commands, notebook management, and todo tracking. Acts as a complete development environment interface.
+
+### Tools
+
+- **Bash:**
+  - **Description**: Executes bash commands in a persistent shell session with proper security measures and timeout handling
+  - **Inputs**:
+    - command (string) - The bash command to execute
+    - timeout (number, optional) - Timeout in milliseconds (max 600000)
+    - description (string) - Clear description of what the command does
+  - **Validation**:
+    - Command must be valid bash syntax
+    - Timeout must not exceed 10 minutes
+    - Avoid interactive commands
+  - **Core Functions:** Execute shell commands, manage file operations, run build processes, git operations
+  - **APIs**: Local system shell interface
+  - **Output**: Command execution result with stdout, stderr, and exit code
+
+- **Glob:**
+  - **Description**: Fast file pattern matching tool that works with any codebase size using glob patterns
+  - **Inputs**:
+    - pattern (string) - The glob pattern to match files against
+    - path (string, optional) - Directory to search in
+  - **Validation**:
+    - Pattern must be valid glob syntax
+    - Path must be valid directory if provided
+  - **Core Functions:** Find files by name patterns, recursive file searching
+  - **APIs**: Local filesystem access
+  - **Output**: List of matching file paths sorted by modification time
+
+- **Grep:**
+  - **Description**: Powerful search tool built on ripgrep with regex support and multiple output modes
+  - **Inputs**:
+    - pattern (string) - Regular expression pattern to search for
+    - path (string, optional) - File or directory to search in
+    - glob (string, optional) - Glob pattern to filter files
+    - output_mode (enum) - content/files_with_matches/count
+    - context options (-A, -B, -C) - Lines before/after matches
+    - case_insensitive (-i) - Case insensitive search
+    - type (string, optional) - File type filter
+    - multiline (boolean) - Enable multiline matching
+  - **Validation**:
+    - Pattern must be valid regex
+    - Output mode must be valid enum value
+    - Context options only valid with content mode
+  - **Core Functions:** Search file contents, find code patterns, analyze codebases
+  - **APIs**: Ripgrep interface
+  - **Output**: Search results in specified format
+
+- **LS:**
+  - **Description**: Lists files and directories with optional glob pattern filtering
+  - **Inputs**:
+    - path (string) - Absolute path to directory
+    - ignore (array, optional) - Glob patterns to ignore
+  - **Validation**:
+    - Path must be absolute, not relative
+    - Ignore patterns must be valid globs
+  - **Core Functions:** Directory listing, file exploration
+  - **APIs**: Local filesystem access
+  - **Output**: List of files and directories
+
+- **Read:**
+  - **Description**: Reads files from local filesystem with optional line range specification
+  - **Inputs**:
+    - file_path (string) - Absolute path to file
+    - offset (number, optional) - Starting line number
+    - limit (number, optional) - Number of lines to read
+  - **Validation**:
+    - File path must be absolute
+    - Offset and limit must be positive integers
+  - **Core Functions:** Read file contents, view code, analyze documents
+  - **APIs**: Local filesystem access
+  - **Output**: File contents with line numbers in cat -n format
+
+- **Edit:**
+  - **Description**: Performs exact string replacements in files with validation
+  - **Inputs**:
+    - file_path (string) - Absolute path to file
+    - old_string (string) - Text to replace
+    - new_string (string) - Replacement text
+    - replace_all (boolean, optional) - Replace all occurrences
+  - **Validation**:
+    - File must exist and be readable
+    - Old string must be unique unless replace_all is true
+    - New string must be different from old string
+  - **Core Functions:** Edit code files, update configurations, fix bugs
+  - **APIs**: Local filesystem access
+  - **Output**: Success confirmation or error message
+
+- **MultiEdit:**
+  - **Description**: Makes multiple edits to a single file in one atomic operation
+  - **Inputs**:
+    - file_path (string) - Absolute path to file
+    - edits (array) - Array of edit operations with old_string, new_string, replace_all
+  - **Validation**:
+    - All edits must be valid for operation to succeed
+    - Edits applied sequentially
+    - File must be accessible
+  - **Core Functions:** Bulk code changes, refactoring, multiple updates
+  - **APIs**: Local filesystem access
+  - **Output**: Success confirmation or detailed error information
+
+- **Write:**
+  - **Description**: Writes content to files with overwrite capability
+  - **Inputs**:
+    - file_path (string) - Absolute path to file
+    - content (string) - Content to write
+  - **Validation**:
+    - Must read file first if it exists
+    - Path must be valid and writable
+  - **Core Functions:** Create new files, overwrite existing files
+  - **APIs**: Local filesystem access
+  - **Output**: Success confirmation
+
+- **NotebookRead:**
+  - **Description**: Reads Jupyter notebook files and returns cells with outputs
+  - **Inputs**:
+    - notebook_path (string) - Absolute path to .ipynb file
+    - cell_id (string, optional) - Specific cell ID to read
+  - **Validation**:
+    - File must be valid Jupyter notebook format
+    - Cell ID must exist if specified
+  - **Core Functions:** Read notebook contents, analyze data science workflows
+  - **APIs**: Jupyter notebook format parser
+  - **Output**: Notebook cells with code, markdown, and outputs
+
+- **NotebookEdit:**
+  - **Description**: Edits Jupyter notebook cells with insert/replace/delete operations
+  - **Inputs**:
+    - notebook_path (string) - Absolute path to .ipynb file
+    - cell_id (string, optional) - Cell ID to edit
+    - new_source (string) - New cell content
+    - cell_type (enum) - code/markdown
+    - edit_mode (enum) - replace/insert/delete
+  - **Validation**:
+    - Notebook must exist and be valid format
+    - Edit mode must be valid
+    - Cell type required for insert mode
+  - **Core Functions:** Update notebook cells, modify data science workflows
+  - **APIs**: Jupyter notebook format editor
+  - **Output**: Success confirmation
+
+- **TodoWrite:**
+  - **Description**: Creates and manages structured task lists for coding sessions
+  - **Inputs**:
+    - todos (array) - Array of todo items with content, status, priority, id
+  - **Validation**:
+    - Each todo must have required fields
+    - Status must be pending/in_progress/completed
+    - Priority must be high/medium/low
+  - **Core Functions:** Task management, progress tracking, workflow organization
+  - **APIs**: Internal task management system
+  - **Output**: Updated todo list confirmation
+
+- **ExitPlanMode:**
+  - **Description**: Prompts user to exit plan mode after presenting implementation plan for coding tasks
+  - **Inputs**:
+    - plan (string) - The implementation plan in markdown format
+  - **Validation**:
+    - Plan must be provided and non-empty
+    - Should only be used for implementation planning, not research tasks
+  - **Core Functions:** Plan presentation, mode transition, user confirmation prompts
+  - **APIs**: Internal plan management system
+  - **Output**: Formatted plan presentation with user prompt for approval
+
+---

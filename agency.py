@@ -1,8 +1,10 @@
 from dotenv import load_dotenv
 from agency_swarm import Agency
 
-from example_agent import example_agent
-from example_agent2 import example_agent2
+from agency_code_agent import agency_code_agent
+from planner_agent import planner_agent
+from agency_swarm.tools.send_message import SendMessageHandoff
+
 
 import asyncio
 
@@ -11,9 +13,12 @@ load_dotenv()
 # do not remove this method, it is used in the main.py file to deploy the agency (it has to be a method)
 def create_agency(load_threads_callback=None):
     agency = Agency(
-        example_agent, example_agent2,
-        communication_flows=[(example_agent, example_agent2)],
-        name="ExampleAgency", # don't forget to rename your agency!
+        agency_code_agent,  # Entry point - users communicate directly with code agent
+        communication_flows=[
+            (agency_code_agent, planner_agent, SendMessageHandoff),
+            (planner_agent, agency_code_agent, SendMessageHandoff),
+        ],  # Single agent architecture
+        name="AgencyCodeAgency",
         shared_instructions="shared_instructions.md",
         load_threads_callback=load_threads_callback,
     )
