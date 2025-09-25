@@ -173,3 +173,4 @@ cython_debug/
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
 CLAUDE.md
+.env
